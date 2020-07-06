@@ -9,7 +9,7 @@ from api.views import CategoryViewSet
 
 
 router = DefaultRouter()
-router.register('titles', TitleViewSet)
+router.register('titles', TitleViewSet, basename='titles')
 router.register('genres', GenreViewSet)
 router.register('categories', CategoryViewSet)
 
