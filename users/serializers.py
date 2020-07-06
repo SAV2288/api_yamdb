@@ -15,14 +15,11 @@ class TokenGainSerializer(serializers.Serializer):
 
 # class UserSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
-    #
-    # first_name = serializers.CharField(max_length=200, required=False)
-    # last_name = serializers.CharField(max_length=200, required=False)
-    # username = serializers.CharField(max_length=200, )
-    # bio = serializers.CharField(max_length=200, required=False)
-    # email = serializers.EmailField()
-    # role = serializers.CharField(max_length=200,required=False, default='user')
 
+    # def create(self, validated_data):
+    #     user = User.objects.create(validated_data)
+    #     user.save()
+    #     return user
     def create(self, validated_data):
         return User.objects.create(**validated_data)
 

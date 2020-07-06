@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from .models import User, Confirmation_code
 from rest_framework import status, viewsets
-
+from rest_framework.permissions import IsAuthenticated
 from .managers import account_activation_token, get_tokens_for_user
 from .permissions import AdminPermission
 import datetime
@@ -70,6 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 # #
 class UserMeView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
@@ -91,6 +92,7 @@ class UserView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     permission_classes = (AdminPermission,)
     lookup_field = 'username'
-
+    #
     # def perform_update(self, serializer):
+    #
     #     serializer.save()

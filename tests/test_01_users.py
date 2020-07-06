@@ -1,6 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
-
+import json
 from .common import create_users_api, auth_client
 
 
@@ -36,9 +36,11 @@ class Test01UserAPI:
         assert response.status_code == 401, \
             'Проверьте, что при GET запросе `/api/v1/users/me/` без токена авторизации возвращается статус 401'
 
+
     @pytest.mark.django_db(transaction=True)
     def test_04_users_get_auth(self, user_client, admin):
         response = user_client.get('/api/v1/users/')
+        print("RESPONSE={}".format(response.json()))
         assert response.status_code != 404, \
             'Страница `/api/v1/users/` не найдена, проверьте этот адрес в *urls.py*'
         assert response.status_code == 200, \
@@ -138,10 +140,13 @@ class Test01UserAPI:
             'Проверьте, что при GET запросе `/api/v1/users/` возвращаете данные с пагинацией. ' \
             'Значение параметра `results` не правильное'
 
+
     @pytest.mark.django_db(transaction=True)
     def test_06_users_username_get_auth(self, user_client, admin):
         user, moderator = create_users_api(user_client)
         response = user_client.get(f'/api/v1/users/{admin.username}/')
+        print(admin.username)
+        print("RESPONSE={}".format(response.json()))
         assert response.status_code != 404, \
             'Страница `/api/v1/users/{username}/` не найдена, проверьте этот адрес в *urls.py*'
         assert response.status_code == 200, \
@@ -169,6 +174,7 @@ class Test01UserAPI:
         assert response_data.get('role') == moderator.role, \
             'Проверьте, что при GET запросе `/api/v1/users/` возвращаете `role`.'
 
+    @pytest.mark.slow
     @pytest.mark.django_db(transaction=True)
     def test_07_users_username_patch_auth(self, user_client, admin):
         user, moderator = create_users_api(user_client)
@@ -190,6 +196,7 @@ class Test01UserAPI:
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` с токеном авторизации возвращается статус 200'
         client_user = auth_client(user)
         response = client_user.get(f'/api/v1/users/{admin.username}/')
+        print("RESPONSE={}".format(response.json()))
         assert response.status_code == 200, \
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` можно изменить роль пользователя'
 

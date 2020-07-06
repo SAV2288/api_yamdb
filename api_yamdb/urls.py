@@ -24,14 +24,14 @@ router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
 
+
 urlpatterns = [
-    path('admin/', admin.site.urls),  # не отображает
+    path('admin/', admin.site.urls),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
     path('api/v1/auth/email/', EmailTokenView.as_view()),
     path('api/v1/auth/token/', JWTgetView.as_view()),
+    path('api/v1/users/me/', UserMeView.as_view()),
+    path('api/v1/users/<str:username>/', UserView.as_view()),
     path('api/v1/', include(router.urls)),
-    path('api/v1/users/me', UserMeView.as_view()),
-    path('api/v1/users/<str:username>', UserView.as_view())
-
 ]
 

@@ -11,8 +11,8 @@ class User(AbstractUser):
     bio = models.TextField(max_length=500, blank=True)
     role = models.CharField(max_length=30, choices=ROLES, default='user')
     email = models.EmailField(max_length=255, unique=True)
-    username = models.CharField(max_length=30, null=True, default="", unique=False)
-    is_active = models.BooleanField(default=False)
+    username = models.CharField(max_length=30, null=True, default="",unique=True)
+    is_active = models.BooleanField(default=True)
 
 
     USERNAME_FIELD = 'email'
