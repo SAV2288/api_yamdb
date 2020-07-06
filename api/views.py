@@ -22,6 +22,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         score = Rate.objects.get(title=title)
         score.rate_update(score=self.request.data.get('score'))
 
+    
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs['title_id'])
         return Review.objects.filter(title=title)
