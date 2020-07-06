@@ -3,7 +3,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 import math
 
-User = get_user_model()
+from django.db import models
+
 
 
 class Genres(models.Model):
@@ -32,6 +33,7 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
 
 
 # Review и comments на основе моделей из проекта yatube
