@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 class Title(models.Model):
-
     pass
 
 
@@ -15,8 +14,10 @@ class Title(models.Model):
 class Review(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="review")
-    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="review")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="review_author")
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="review_title")
+    score = models.IntegerField(validators=[MinValueValidator(1),
+                                            MaxValueValidator(10)])
 
     def __str__(self):
         return self.text
@@ -36,14 +37,11 @@ class Rate(models.Model):
     count = models.IntegerField()
 
     def rate_update(self, score):
-
-        final_score = sum([(self.rate * self.count), score])/sum([self.count, 1])
+        final_score = math.fsum([(self.rate * self.count), score]) / sum([self.count, 1])
 
         self.rate = final_score
         self.count += 1
         self.save()
 
     def __str__(self):
-        return '%s: %d' % (self.title, self.rate)
-
-
+        return '%s: %.3d' % (self.title, self.rate)
