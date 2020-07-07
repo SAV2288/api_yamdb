@@ -3,6 +3,33 @@ from rest_framework import serializers
 from api.models import Genres
 from api.models import Titles
 from api.models import Categories
+from api.models import Review
+from api.models import Comment
+from api.models import Rate
+
+
+class ScoreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ['score']
+        model = Rate
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+    score = ScoreSerializer()
+
+    class Meta:
+        fields = ['id', 'text', 'author', 'score', 'pub_date']
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        fields = ('id', 'author', 'text', 'created')
+        model = Comment
 
 
 class GenreSerialiser(serializers.ModelSerializer):
