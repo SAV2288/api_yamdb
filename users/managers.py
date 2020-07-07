@@ -1,22 +1,6 @@
 import six
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
 
-import datetime
-import time
-
-#
-# def conf_code_generator(user, timestamp):
-#     return (
-#             six.text_type(user.pk) + six.text_type(timestamp) +
-#             six.text_type(user.email)
-#     )
-#
-#
-# user = User.objects.get(id=1)
-#
-# dt = datetime.datetime.now()
-# timestamp = time.mktime(dt.timetuple())
 
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator

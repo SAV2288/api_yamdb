@@ -16,14 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from users.views import EmailTokenView, JWTgetView, UserViewSet , UserView , UserMeView
+from users.views import EmailTokenView, JWTgetView, UserViewSet, UserView, UserMeView
 
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +33,3 @@ urlpatterns = [
     path('api/v1/users/<str:username>/', UserView.as_view()),
     path('api/v1/', include(router.urls)),
 ]
-

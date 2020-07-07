@@ -197,6 +197,7 @@ class Test01UserAPI:
         client_user = auth_client(user)
         response = client_user.get(f'/api/v1/users/{admin.username}/')
         print("RESPONSE={}".format(response.json()))
+        print("USER={}".format(user.is_superuser))
         assert response.status_code == 200, \
             'Проверьте, что при PATCH запросе `/api/v1/users/{username}/` можно изменить роль пользователя'
 
