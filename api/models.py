@@ -30,12 +30,12 @@ class Titles(models.Model):
     category = models.ForeignKey(
         Categories,
         on_delete=models.SET_NULL,
-        blank=True, null=True,
+        blank=True,
+        null=True,
         related_name='category_titles'
         )
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genres, blank=True)
-    
     
     def __str__(self):
         return self.name

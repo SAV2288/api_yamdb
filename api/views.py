@@ -80,7 +80,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return queryset
     
     def get_queryset(self):
-        queryset = Titles.objects.select_related('category').all().prefetch_related('genre')
+        queryset = Titles.objects.select_related('category').all().prefetch_related('genre', 'rate_title')
         
         if self.request.query_params:
             queryset = self.queryset_filter(queryset)
