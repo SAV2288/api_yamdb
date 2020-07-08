@@ -17,9 +17,22 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter
+
+from users.views import EmailTokenView, JWTgetView, UserViewSet, UserView, UserMeView
+
+
+router = DefaultRouter()
+
+router.register(r'', UserViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
     path('api/v1/', include('api.urls')),
+    path('api/v1/auth/email/', EmailTokenView.as_view()),
+    path('api/v1/auth/token/', JWTgetView.as_view()),
+    path('api/v1/users/me/', UserMeView.as_view()),
+    path('api/v1/users/<str:username>/', UserView.as_view()),
+    path('api/v1/users/', include(router.urls)),
 ]

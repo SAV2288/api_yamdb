@@ -3,14 +3,16 @@ import pytest
 
 @pytest.fixture
 def admin(django_user_model):
-    return django_user_model.objects.create_superuser(username='TestUser', email='admin@yamdb.fake', password='1234567')
+    uesr = django_user_model.objects.create_superuser(username='TestUser', email='admin@yamdb.fake', password='1234567')
+    # print(uesr)
+    return uesr
 
 
 @pytest.fixture
 def token(admin):
     from rest_framework_simplejwt.tokens import RefreshToken
     refresh = RefreshToken.for_user(admin)
-
+    # print("Token={}".format(refresh))
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
@@ -23,4 +25,5 @@ def user_client(token):
 
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {token["access"]}')
+    # print(client)
     return client
