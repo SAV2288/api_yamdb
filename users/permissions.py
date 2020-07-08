@@ -15,3 +15,9 @@ class IsAccountAdminOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_staff
+
+class RoleAdminPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.role == 'admin' or request.user.is_superuser:
+            return True
+        return False
