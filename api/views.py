@@ -1,6 +1,7 @@
 from django.db.models import Q
 
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
+from rest_framework import mixins
 from rest_framework import filters
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404

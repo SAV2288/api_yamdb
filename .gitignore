@@ -1,9 +1,10 @@
 .git/*
 env/
 venv/
-.vscode
 
 sent_emails/
+
+.vscode
 
 __pycache__/
 *.py[cod]
