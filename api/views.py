@@ -1,4 +1,6 @@
-from rest_framework import viewsets
+from django.db.models import Q
+
+from rest_framework import viewsets, mixins
 from rest_framework import filters
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
@@ -17,6 +19,7 @@ from api.serializers import CategorySerializer
 from api.serializers import TitleSerializer
 from api.serializers import ReviewSerializer
 from api.serializers import CommentSerializer
+from users.permissions import IsAccountAdminOrReadOnly
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -60,7 +63,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    # permission_classes = [IsAccountAdminOrReadOnly]
+    permission_classes = [IsAccountAdminOrReadOnly]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def queryset_filter(self, queryset):
@@ -97,12 +100,12 @@ class TitleViewSet(viewsets.ModelViewSet):
             'category': Categories,
             'genre': Genres,
         }
-        
+
         for param in self.request.data:
             if param in model_dict:
                 model = model_dict[param]
                 data = model.objects.filter(
-                    slug=self.request.data.get(f'{param}')
+                    slug__in=self.request.data.getlist(f'{param}')
                     )
                 self.validate_data(data, param)
                 if param == 'category':
@@ -120,11 +123,14 @@ class TitleViewSet(viewsets.ModelViewSet):
         serializer.save(**result_data)
     
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet,
+                        ):
     queryset = Genres.objects.all()
     serializer_class = GenreSerialiser
-    # permission_classes = [IsAccountAdminOrReadOnly]
-    http_method_names = ['get', 'post', 'delete']
+    permission_classes = [IsAccountAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name']
@@ -136,11 +142,14 @@ class GenreViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet,
+                        ):
     queryset = Categories.objects.all()
     serializer_class = CategorySerializer
-    # permission_classes = [IsAccountAdminOrReadOnly]
-    http_method_names = ['get', 'post', 'delete']
+    permission_classes = [IsAccountAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['=name']

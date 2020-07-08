@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from api.models import Genres
 from api.models import Titles
@@ -33,14 +34,18 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GenreSerialiser(serializers.ModelSerializer):
-    slug = serializers.SlugField(required=False)
+    slug = serializers.SlugField(required=False,
+                                    validators=[UniqueValidator(queryset=Genres.objects.all())]
+                                    )
     class Meta:
         fields = ('name', 'slug')
         model = Genres
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(required=False)
+    slug = serializers.SlugField(required=False,
+                                    validators=[UniqueValidator(queryset=Categories.objects.all())]
+                                    )
     class Meta:
         fields = ('name', 'slug')
         model = Categories
