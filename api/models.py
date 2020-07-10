@@ -60,17 +60,24 @@ class Comment(models.Model):
 
 
 class Rate(models.Model):
-    title = models.OneToOneField(Titles, on_delete=models.CASCADE, related_name="rate_title")
+    title = models.OneToOneField(Titles, on_delete=models.CASCADE, related_name="rating")
     rate = models.FloatField(validators=[MinValueValidator(1.0),
                                          MaxValueValidator(10.0)])
     count = models.IntegerField()
 
-    def rate_update(self, score):
-        final_score = math.fsum([(self.rate * self.count), score]) / sum([self.count, 1])
+    def rate_update(self, score, new=True):
+        if new:
+            final_score = math.fsum([(self.rate * self.count), score]) / sum([self.count, 1])
 
-        self.rate = final_score
-        self.count += 1
-        self.save()
+            self.rate = final_score
+            self.count += 1
+            self.save()
+        else:
+            delta_score = self.rate - score
+            final_score = math.fsum([(self.rate * self.count), score, delta_score]) / self.count
+
+            self.rate = final_score
+            self.save()
 
     def __str__(self):
-        return '%s: %.2f' % (self.title, self.rate)
+        return '%s: %.2d' % (self.title, self.rate)

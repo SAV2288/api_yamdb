@@ -52,7 +52,22 @@ class ReviewViewSet(viewsets.ModelViewSet):
             Rate.objects.create(title=title, rate=score_value, count=1)
 
         else:
-            score.rate_update(score=float(score_value))
+            score.rate_update(score=float(score_value), new=True)
+
+        serializer.save(author=self.request.user, title=title, score=score_value)
+
+    def perform_update(self, serializer):
+        score_value = self.request.data.get('score')
+
+        try:
+            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+
+        except Exception:
+            raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
+
+        score = Rate.objects.get(title=title)
+
+        score.rate_update(score=float(score_value), new=False)
 
         serializer.save(author=self.request.user, title=title, score=score_value)
 

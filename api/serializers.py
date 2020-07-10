@@ -8,13 +8,6 @@ from api.models import Review
 from api.models import Comment
 
 
-class RateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ['rate']
-        model = Rate
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
@@ -54,8 +47,13 @@ class CategorySerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerialiser(many=True, required=False, read_only=True)
     category = CategorySerializer(required=False, read_only=True)
-    rating = serializers.FloatField(source='rate_title__rate', read_only=True)
+    rating = serializers.IntegerField(source='rating.rate', read_only=True)
 
     class Meta:
         fields = ['id', 'name', 'year', 'rating', 'description', 'genre', 'category']
         model = Titles
+
+
+
+
+
