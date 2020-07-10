@@ -1,10 +1,9 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
 import math
 
-User = get_user_model()
+from users.models import User
 
 
 class Genres(models.Model):
@@ -35,7 +34,7 @@ class Titles(models.Model):
         )
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genres, blank=True)
-    
+
     def __str__(self):
         return self.name
 
@@ -57,7 +56,7 @@ class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment_author")
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="comment_reviews")
     text = models.TextField()
-    created = models.DateTimeField("Дата добавления", auto_now_add=True, db_index=True)
+    pub_date = models.DateTimeField("Дата добавления", auto_now_add=True, db_index=True)
 
 
 class Rate(models.Model):
