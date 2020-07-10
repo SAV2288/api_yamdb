@@ -1,7 +1,7 @@
 from .serializers import EmailSerializer, TokenGainSerializer, UserSerializer
 from .models import User, Confirmation_code
 from .managers import account_activation_token, get_tokens_for_user
-from .permissions import AdminPermission
+from .permissions import AdminPermission , RoleAdminPermission
 
 from django.core.mail import send_mail
 
@@ -90,6 +90,7 @@ class UserMeView(APIView):
 class UserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AdminPermission,)
-    # permission_classes = (IsAuthenticated,)
+    # permission_classes = (RoleAdminPermission,)
+    # permission_classes = (AdminPermission,)
+    permission_classes = (IsAuthenticated, RoleAdminPermission)
     lookup_field = 'username'

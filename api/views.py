@@ -1,11 +1,10 @@
-from django.db.models import Q
-
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework import mixins
 from rest_framework import filters
 from rest_framework import exceptions
 from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 
 from pytils import translit
 
@@ -20,46 +19,72 @@ from api.serializers import CategorySerializer
 from api.serializers import TitleSerializer
 from api.serializers import ReviewSerializer
 from api.serializers import CommentSerializer
-from users.permissions import IsAccountAdminOrReadOnly
+from users.permissions import IsAccountAdminOrReadOnly, IsOwnerOrReadOnly
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
+    pagination_class = PageNumberPagination
+    permission_classes = [AuthorizedPermission,
+                          IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
 
+        score_value = self.request.data.get('score')
+
         try:
-            title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        except Exception:
+            raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
+
+        try:
             Review.objects.get(title=title, author=self.request.user)
         except Exception:
-            raise exceptions.ValidationError('You have already made a review ')
+            pass
+        else:
+            raise exceptions.ValidationError('You already made review')
 
-        serializer.save(author=self.request.user)
+        try:
+            score = Rate.objects.get(title=title)
 
-        score = Rate.objects.get(title=title)
-        score.rate_update(score=self.request.data.get('score'))
+        except Exception:
+            Rate.objects.create(title=title, rate=score_value, count=1)
+        else:
+            score.rate_update(score=float(score_value))
 
-    
+        serializer.save(author=self.request.user, title=title, score=score_value)
+
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+        try:
+            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        except Exception:
+            raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
+
         return Review.objects.filter(title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
+    pagination_class = PageNumberPagination
 
-    # permission_classes = [
-    #     permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly
-    # ]
+    permission_classes = [AuthorizedPermission,
+                          IsOwnerOrReadOnly
+                          ]
 
     def get_queryset(self):
-        return Comment.objects.filter(title=self.kwargs.get('title_id'),
-                                      review_id=self.kwargs.get('review_id'))
+
+        return Comment.objects.filter(review_id=self.kwargs.get('review_id'))
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+
+        try:
+            review = Review.objects.get(pk=self.kwargs.get('review_id'))
+        except Exception:
+            raise exceptions.NotFound("Requested review doesn't exist")
+
+        serializer.save(author=self.request.user, review=review)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -80,12 +105,12 @@ class TitleViewSet(viewsets.ModelViewSet):
                 param_name = params_name[param]
                 queryset = queryset.filter(
                     **{param_name: self.request.query_params.get(f'{param}')}
-                    )
+                )
         return queryset
-    
+
     def get_queryset(self):
         queryset = Titles.objects.select_related('category').all().prefetch_related('genre', 'rate_title')
-        
+
         if self.request.query_params:
             queryset = self.queryset_filter(queryset)
 
@@ -107,7 +132,7 @@ class TitleViewSet(viewsets.ModelViewSet):
                 model = model_dict[param]
                 data = model.objects.filter(
                     slug__in=self.request.data.getlist(f'{param}')
-                    )
+                )
                 self.validate_data(data, param)
                 if param == 'category':
                     result_data[param] = data[0]
@@ -122,13 +147,13 @@ class TitleViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         result_data = self.get_related_parameters()
         serializer.save(**result_data)
-    
+
 
 class GenreViewSet(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet,
-                        ):
+                   mixins.ListModelMixin,
+                   mixins.DestroyModelMixin,
+                   viewsets.GenericViewSet,
+                   ):
     queryset = Genres.objects.all()
     serializer_class = GenreSerialiser
     permission_classes = [IsAccountAdminOrReadOnly]
@@ -144,10 +169,10 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class CategoryViewSet(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet,
-                        ):
+                      mixins.ListModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet,
+                      ):
     queryset = Categories.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAccountAdminOrReadOnly]
