@@ -60,7 +60,7 @@ class Comment(models.Model):
 
 
 class Rate(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE, related_name="rate_title")
+    title = models.OneToOneField(Titles, on_delete=models.CASCADE, related_name="rate_title")
     rate = models.FloatField(validators=[MinValueValidator(1.0),
                                          MaxValueValidator(10.0)])
     count = models.IntegerField()
@@ -73,4 +73,4 @@ class Rate(models.Model):
         self.save()
 
     def __str__(self):
-        return '%s: %.3d' % (self.title, self.rate)
+        return '%s: %.2f' % (self.title, self.rate)
