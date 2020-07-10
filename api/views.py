@@ -19,7 +19,7 @@ from api.serializers import CategorySerializer
 from api.serializers import TitleSerializer
 from api.serializers import ReviewSerializer
 from api.serializers import CommentSerializer
-from users.permissions import IsAccountAdminOrReadOnly, IsOwnerOrReadOnly
+from users.permissions import IsAccountAdminOrReadOnly, IsOwnerOrReadOnly, AuthorizedPermission
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -124,8 +124,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_queryset(self):
-        queryset = Titles.objects.select_related('category').all().prefetch_related('genre', 'rate_title')
-
+        queryset = Titles.objects.select_related('category').all().prefetch_related('genre', 'rating')
         if self.request.query_params:
             queryset = self.queryset_filter(queryset)
 
