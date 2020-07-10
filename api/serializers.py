@@ -1,24 +1,22 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from api.models import Genres
+from api.models import Genres, Rate
 from api.models import Titles
 from api.models import Categories
 from api.models import Review
 from api.models import Comment
-from api.models import Rate
 
 
-class ScoreSerializer(serializers.ModelSerializer):
+class RateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ['score']
+        fields = ['rate']
         model = Rate
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
-    score = ScoreSerializer()
 
     class Meta:
         fields = ['id', 'text', 'author', 'score', 'pub_date']
@@ -29,14 +27,15 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
-        fields = ('id', 'author', 'text', 'created')
+        fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
 
 
 class GenreSerialiser(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False,
-                                    validators=[UniqueValidator(queryset=Genres.objects.all())]
-                                    )
+                                 validators=[UniqueValidator(queryset=Genres.objects.all())]
+                                 )
+
     class Meta:
         fields = ('name', 'slug')
         model = Genres
@@ -44,8 +43,9 @@ class GenreSerialiser(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False,
-                                    validators=[UniqueValidator(queryset=Categories.objects.all())]
-                                    )
+                                 validators=[UniqueValidator(queryset=Categories.objects.all())]
+                                 )
+
     class Meta:
         fields = ('name', 'slug')
         model = Categories
@@ -54,8 +54,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerialiser(many=True, required=False, read_only=True)
     category = CategorySerializer(required=False, read_only=True)
-    rating = serializers.FloatField(source='rate_title__rate', required=False, read_only=True)
+    rating = serializers.FloatField(source='rate_title__rate', read_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = ['id', 'name', 'year', 'rating', 'description', 'genre', 'category']
         model = Titles

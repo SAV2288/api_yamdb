@@ -21,3 +21,14 @@ class RoleAdminPermission(permissions.BasePermission):
         if request.user.role == 'admin' or request.user.is_superuser:
             return True
         return False
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.author == request.user
+
+
