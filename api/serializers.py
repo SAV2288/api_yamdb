@@ -54,7 +54,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerialiser(many=True, required=False, read_only=True)
     category = CategorySerializer(required=False, read_only=True)
-    rating = serializers.FloatField(source='rate_title__rate', read_only=True)
+    rating = serializers.IntegerField(source='rate_title.rate',read_only=True)
 
     class Meta:
         fields = ['id', 'name', 'year', 'rating', 'description', 'genre', 'category']

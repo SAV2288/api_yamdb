@@ -60,7 +60,7 @@ class Comment(models.Model):
 
 
 class Rate(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE, related_name="rate_title")
+    title = models.OneToOneField(Titles, on_delete=models.CASCADE, related_name="rate_title")
     rate = models.FloatField(validators=[MinValueValidator(1.0),
                                          MaxValueValidator(10.0)])
     count = models.IntegerField()
