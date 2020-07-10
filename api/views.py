@@ -50,7 +50,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         except Exception:
             Rate.objects.create(title=title, rate=score_value, count=1)
-
         else:
             score.rate_update(score=float(score_value), new=True)
 
