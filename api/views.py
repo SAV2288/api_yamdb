@@ -24,7 +24,6 @@ from users.permissions import IsAccountAdminOrReadOnly, IsOwnerOrReadOnly, Autho
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    queryset = Review.objects.all()
     pagination_class = PageNumberPagination
     permission_classes = [AuthorizedPermission,
                           IsOwnerOrReadOnly]
@@ -34,15 +33,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
         score_value = self.request.data.get('score')
 
         try:
-            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
-        except Exception:
+            title = Titles.objects.get(pk=self.kwargs['title_id'])
+        except Titles.DoesNotExist:
             raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
 
-        try:
-            Review.objects.get(title=title, author=self.request.user)
-        except Exception:
-            pass
-        else:
+        if Review.objects.filter(title=title, author=self.request.user).exists():
             raise exceptions.ValidationError('You already made review')
 
         try:
@@ -64,7 +59,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         except Exception:
             raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
 
-        score = Rate.objects.get(title=title)
+        score = get_object_or_404(Rate, title=title)
 
         score.rate_update(score=float(score_value), new=False)
 
@@ -72,7 +67,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         try:
-            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+            title = Titles.objects.get(pk=self.kwargs['title_id'])
         except Exception:
             raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
 
@@ -96,7 +91,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         try:
             review = Review.objects.get(pk=self.kwargs.get('review_id'))
-        except Exception:
+        except Review.DoesNotExist:
             raise exceptions.NotFound("Requested review doesn't exist")
 
         serializer.save(author=self.request.user, review=review)
