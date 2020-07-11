@@ -18,6 +18,6 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
 
-class Confirmation_code(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class ConfirmationCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='confirmation')
     code = models.TextField()

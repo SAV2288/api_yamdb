@@ -54,7 +54,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         score_value = self.request.data.get('score')
 
         try:
-            title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+            title = Titles.objects.get(pk=self.kwargs['title_id'])
 
         except Exception:
             raise exceptions.NotFound(f"Title with '{self.kwargs['title_id']}' id doesn't exist")
@@ -76,7 +76,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
+
     pagination_class = PageNumberPagination
 
     permission_classes = [AuthorizedPermission,

@@ -1,5 +1,5 @@
 from .serializers import EmailSerializer, TokenGainSerializer, UserSerializer
-from .models import User, Confirmation_code
+from .models import User, ConfirmationCode
 from .managers import account_activation_token, get_tokens_for_user
 from .permissions import AdminPermission , RoleAdminPermission
 
@@ -14,8 +14,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 
-# Create your views here.
-
 class EmailTokenView(APIView):
     def post(self, request):
         serializer = EmailSerializer(data=request.data)
@@ -26,7 +24,7 @@ class EmailTokenView(APIView):
             else:
                 user = User.objects.create(email=email)
                 code = account_activation_token.make_token(user)
-                Confirmation_code.objects.create(user=user, code=code)
+                ConfirmationCode.objects.create(user=user, code=code)
                 send_mail(
                     'Подтверждение аккаунта',
                     'Ваш ключ активации {}'.format(code),
@@ -51,7 +49,7 @@ class JWTgetView(APIView):
             except:
                 raise ValidationError('Юзер не найден')
             code = serializer.data.get('confirmation_code')
-            if Confirmation_code.objects.filter(user=user, code=code).exists():
+            if ConfirmationCode.objects.filter(user=user, code=code).exists():
                 user.is_active = True
                 user.save()
                 return Response(get_tokens_for_user(user))
@@ -67,7 +65,6 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
 
-# #
 class UserMeView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -90,7 +87,5 @@ class UserMeView(APIView):
 class UserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = (RoleAdminPermission,)
-    # permission_classes = (AdminPermission,)
     permission_classes = (IsAuthenticated, RoleAdminPermission)
     lookup_field = 'username'
